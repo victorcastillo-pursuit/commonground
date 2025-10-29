@@ -25,7 +25,7 @@ function ActivitiesList() {
         participants:activity_participants(count)
       `
       )
-      .gte("date", new Date().toISOString().split("T")[0])
+      //.gte("date", new Date().toISOString().split("T")[0]) // this is to show only activities for the future
       .order("date", { ascending: true })
       .order("time", { ascending: true });
 
@@ -33,13 +33,20 @@ function ActivitiesList() {
       console.error("Error fetching activities:", error);
     } else {
       setActivities(data);
+      if (error) {
+        console.error("Error fetching activities:", error);
+      } else {
+        console.log("Activities from database:", data); // ADD THIS LINE
+        setActivities(data);
+      }
     }
 
     setLoading(false);
   }
 
   function formatDate(dateString) {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split("-");
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",

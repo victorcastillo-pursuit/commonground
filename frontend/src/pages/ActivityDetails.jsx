@@ -25,21 +25,17 @@ function ActivityDetails() {
   const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
-    getCurrentUser();
     fetchActivityDetails();
   }, [id]);
 
-  async function getCurrentUser() {
+  async function fetchActivityDetails() {
+    setLoading(true);
+
+    // Get current user first
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (user) {
-      setCurrentUserId(user.id);
-    }
-  }
-
-  async function fetchActivityDetails() {
-    setLoading(true);
+    const userId = user?.id;
 
     const { data: activityData, error: activityError } = await supabase
       .from("activities")
@@ -75,11 +71,12 @@ function ActivityDetails() {
     } else {
       setParticipants(participantsData);
 
-      if (currentUserId) {
+      if (userId) {
         const userHasRsvped = participantsData.some(
-          (p) => p.user_id === currentUserId
+          (p) => p.user_id === userId
         );
         setIsRsvped(userHasRsvped);
+        setCurrentUserId(userId);
       }
     }
 
@@ -136,7 +133,8 @@ function ActivityDetails() {
   }
 
   function formatDate(dateString) {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split("-");
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString("en-US", {
       weekday: "long",
       month: "long",

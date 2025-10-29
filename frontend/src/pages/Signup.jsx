@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Auth.css";
@@ -12,6 +12,16 @@ function Signup() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [key, setKey] = useState(Date.now()); // Force re-render to clear autofill
+
+  useEffect(() => {
+    // Force clear any autofilled values on mount
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+    });
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -73,50 +83,83 @@ function Signup() {
           <p className="auth-subtitle">Join a community that understands</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        {/* Fake fields to trick browser autofill */}
+        <input
+          type="text"
+          name="fake-username"
+          autoComplete="username"
+          style={{ display: "none" }}
+          tabIndex="-1"
+        />
+        <input
+          type="password"
+          name="fake-password"
+          autoComplete="current-password"
+          style={{ display: "none" }}
+          tabIndex="-1"
+        />
+
+        <form
+          onSubmit={handleSubmit}
+          className="auth-form"
+          autoComplete="off"
+          key={key}
+        >
           {error && <div className="auth-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="name" className="form-label">
+            <label htmlFor="signup-name" className="form-label">
               Name
             </label>
             <input
               type="text"
-              id="name"
+              id="signup-name"
               name="name"
               value={formData.name}
               onChange={handleChange}
               className="form-input"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              placeholder=""
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email" className="form-label">
+            <label htmlFor="signup-email" className="form-label">
               Email
             </label>
             <input
               type="email"
-              id="email"
+              id="signup-email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               className="form-input"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              placeholder=""
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password" className="form-label">
+            <label htmlFor="signup-password" className="form-label">
               Password
             </label>
             <input
               type="password"
-              id="password"
+              id="signup-password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               className="form-input"
+              autoComplete="new-password"
+              placeholder=""
               minLength="6"
               required
             />
